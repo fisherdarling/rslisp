@@ -1,0 +1,10 @@
+[package]
+name = "rslisp"
+version = "0.1.0"
+authors = ["fisher"]
+edition = "2018"
+
+[dependencies]
+env_logger = "*"
+log = "*"
+im = "10.2.0"
