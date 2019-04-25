@@ -160,7 +160,6 @@ impl PartialEq for BuiltinMacro {
     }
 }
 
-
 impl BuiltinCall for BuiltinMacro {
     fn call_builtin(&mut self, args: Vector<Type>, scope: &mut Scope) -> Type {
         (self.inner)(args, scope)

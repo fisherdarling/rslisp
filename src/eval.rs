@@ -24,7 +24,7 @@ pub fn create_env() -> Scope {
     let mul_fn = Type::Builtin(Rc::new(RefCell::new(mul_fn)));
     let define_fn = Type::Macro(Rc::new(RefCell::new(define_fn)));
 
-    funcs.insert(define, define_fn); 
+    funcs.insert(define, define_fn);
     funcs.insert(add, add_fn.clone());
     funcs.insert(mul, mul_fn.clone());
     funcs.insert("+".into(), add_fn);
