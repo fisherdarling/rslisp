@@ -1,6 +1,39 @@
-use crate::types::{BuiltinFunction, Scope, Type};
+use crate::types::{BuiltinFunction, BuiltinMacro, Scope, Type, Function};
+use crate::eval::eval;
+
 
 use im::Vector;
+
+
+pub fn define() -> (String, BuiltinMacro) {
+    let fun = |args: Vector<Type>, scope: &mut Scope| -> Type {
+        if let Type::Symbol(sym) = args[0].clone() {
+            scope.put(sym, eval(args[1].clone(), &mut scope.clone()));
+        
+            return Type::Nil;
+        } else {
+            let name_and_args = &args[0];
+            
+            let (name, params): (Type, Vector<Type>) = match name_and_args {
+                Type::SExpr(sexpr) => (sexpr[0].clone(), sexpr.skip(1)),
+                _ => panic!("no name for define"),
+            };
+
+            let name = name.as_key();
+            let body = args.skip(1);
+            let environ = scope.fork();
+            let func = Type::Function(Function::new(params, body, environ));
+
+            scope.put(name, func);
+        
+            return Type::Nil;
+        }
+    };
+
+    ("define".into(), BuiltinMacro::new("define".into(), fun))
+}
+
+
 
 pub mod math {
     use super::*;

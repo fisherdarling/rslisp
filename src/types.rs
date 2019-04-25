@@ -22,7 +22,7 @@ pub enum Type {
     Quoted(Box<Type>),
     Function(Function),
     Builtin(Rc<RefCell<BuiltinFunction>>),
-    Macro(Macro),
+    Macro(Rc<RefCell<BuiltinMacro>>),
     Nil,
 }
 
@@ -131,16 +131,39 @@ impl Call for Function {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Macro {
-    params: Vector<Type>,
-    body: Vector<Type>,
-    scope: Scope,
+pub struct BuiltinMacro {
+    name: String,
+    inner: Box<dyn FnMut(Vector<Type>, &mut Scope) -> Type>,
 }
 
-impl Call for Macro {
-    fn call(&self, args: Vector<Type>, stg: &mut Scope) -> Type {
-        Type::Nil
+impl BuiltinMacro {
+    pub fn new(
+        name: String,
+        fun: impl FnMut(Vector<Type>, &mut Scope) -> Type + 'static,
+    ) -> BuiltinMacro {
+        BuiltinMacro {
+            name,
+            inner: Box::new(fun),
+        }
+    }
+}
+
+impl fmt::Debug for BuiltinMacro {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "BuiltinMacro `{}`", self.name)
+    }
+}
+
+impl PartialEq for BuiltinMacro {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+
+impl BuiltinCall for BuiltinMacro {
+    fn call_builtin(&mut self, args: Vector<Type>, scope: &mut Scope) -> Type {
+        (self.inner)(args, scope)
     }
 }
 
@@ -162,11 +185,11 @@ impl Scope {
         self.local.insert(key, value);
     }
 
-    pub fn fork(&self) -> Scope {
+    pub fn fork(&self) -> HashMap<String, Type> {
         let mut environ = self.environ.clone();
         environ.extend(self.local.clone());
 
-        Scope::new(environ)
+        environ
     }
 }
 

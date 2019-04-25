@@ -18,14 +18,17 @@ pub fn create_env() -> Scope {
 
     let (add, add_fn) = crate::builtins::math::add();
     let (mul, mul_fn) = crate::builtins::math::mul();
+    let (define, define_fn) = crate::builtins::define();
 
     let add_fn = Type::Builtin(Rc::new(RefCell::new(add_fn)));
     let mul_fn = Type::Builtin(Rc::new(RefCell::new(mul_fn)));
+    let define_fn = Type::Macro(Rc::new(RefCell::new(define_fn)));
 
+    funcs.insert(define, define_fn); 
     funcs.insert(add, add_fn.clone());
     funcs.insert(mul, mul_fn.clone());
     funcs.insert("+".into(), add_fn);
-    funcs.insert("*".into(), mul_fn); 
+    funcs.insert("*".into(), mul_fn);
 
     Scope::new(funcs)
 }
@@ -47,7 +50,7 @@ pub fn eval(expr: Type, mut stg: &mut Scope) -> Type {
             let car_eval = eval(sexpr.head().unwrap().clone(), stg);
 
             match car_eval {
-                Type::Macro(mac) => eval(mac.call(sexpr.skip(1), stg), stg),
+                Type::Macro(mac) => eval(mac.borrow_mut().call_builtin(sexpr.skip(1), stg), stg),
                 Type::Function(fun) => {
                     let args = sexpr
                         .skip(1)
