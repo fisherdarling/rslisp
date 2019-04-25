@@ -38,11 +38,8 @@ impl<'a> Lexer<'a> {
     }
 
     pub fn iter(&'a mut self) -> Iter<'a> {
-        Iter {
-            inner: self
-        }
+        Iter { inner: self }
     }
-
 
     fn next_char(&mut self) -> Option<char> {
         // If we hit a line, count it.
@@ -55,7 +52,7 @@ impl<'a> Lexer<'a> {
             Some((idx, ch)) => {
                 self.pos = idx;
                 self.lookahead = Some(ch);
-            },
+            }
 
             // We're finished
             None => {
@@ -104,9 +101,9 @@ impl<'a> Lexer<'a> {
 
     fn scan_string(&mut self) -> Token<'a> {
         let start = self.pos;
-        
+
         assert!(self.looking_at_str());
-        
+
         loop {
             match self.next_char() {
                 Some('"') => break,
@@ -115,9 +112,9 @@ impl<'a> Lexer<'a> {
                     // char is a ", so consume both, the " will be
                     // consumed on the next iteration;
                     assert_eq!(self.next_char(), Some('"'));
-                },
+                }
                 None => panic!("Malformed string"),
-                _ => {},    
+                _ => {}
             }
         }
 
@@ -151,9 +148,9 @@ impl<'a> Lexer<'a> {
 
         if let Some('.') = self.lookahead {
             is_float = true;
-            
+
             match self.next_char() {
-                Some(c) if c.is_numeric() => {},
+                Some(c) if c.is_numeric() => {}
                 _ => panic!(),
             }
         }
@@ -174,7 +171,6 @@ impl<'a> Lexer<'a> {
             Token::Int(text)
         }
     }
-
 
     fn looking_at_numeric(&self) -> bool {
         if let Some(c) = self.lookahead {
@@ -197,7 +193,7 @@ impl<'a> Lexer<'a> {
 
         match ch {
             '\'' | '\"' | ';' | '(' | ')' => false,
-            _ => true
+            _ => true,
         }
     }
 
@@ -220,7 +216,7 @@ impl<'a> Lexer<'a> {
         loop {
             match self.next_char() {
                 Some(c) if Lexer::allowed_in_symbol(&c) => {}
-                _ => break
+                _ => break,
             }
         }
 
@@ -236,7 +232,7 @@ impl<'a> Lexer<'a> {
                 Some(c) if c.is_whitespace() => {
                     self.next_char();
                     continue;
-                },
+                }
                 Some('\'') => Some(self.scan_char(Token::Quote)),
                 Some(';') => Some(self.scan_comment()),
                 Some('(') => Some(self.scan_char(Token::LParen)),
@@ -248,7 +244,7 @@ impl<'a> Lexer<'a> {
                 _ => {
                     panic!("Invalid character");
                 }
-            }
+            };
         }
     }
 }
@@ -302,7 +298,7 @@ mod tests {
         assert_eq!(lex.next(), Some(Token::Float("5.1")));
         assert_eq!(lex.next(), Some(Token::Float("123.456")));
         assert_eq!(lex.next(), Some(Token::Float("-.32")));
-        assert_eq!(lex.next(), Some(Token::Float("+.0")));    
+        assert_eq!(lex.next(), Some(Token::Float("+.0")));
     }
 
     #[test]
@@ -340,7 +336,7 @@ mod tests {
     #[test]
     fn scan_str_lit() {
         let mut lex = lexer(r#" "" "hello world!" "\"mem\es" "\"\"" """#);
-        
+
         assert_eq!(lex.next(), Some(Token::StrLit("")));
         assert_eq!(lex.next(), Some(Token::StrLit("hello world!")));
         assert_eq!(lex.next(), Some(Token::StrLit("\\\"mem\\es")));
