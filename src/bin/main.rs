@@ -6,7 +6,7 @@ use rslisp::{
 };
 
 fn main() {
-    let code = "(add 1 1)";
+    let code = "(* (+ 1 1) (+ 2 2))";
     let mut lexer = Lexer::new(code);
 
     let mut sexprs = parse(&mut lexer).collect::<Vec<Type>>().into_iter();
