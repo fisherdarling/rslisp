@@ -9,7 +9,6 @@ fn main() {
     let code = "(define (add-new x y) (+ x y)) (add-new 1 1)";
     // let code = "(+ 1 1)";
 
-
     let mut lexer = Lexer::new(code);
 
     let mut sexprs = parse(&mut lexer).collect::<Vec<Type>>().into_iter();
@@ -25,7 +24,6 @@ fn main() {
 
         println!("eval: {:?}", ans);
     }
-
 
     // println!("{:?}", env);
 
