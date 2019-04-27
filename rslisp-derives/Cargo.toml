@@ -1,0 +1,15 @@
+[package]
+name = "rslisp-derive"
+version = "0.1.0"
+authors = ["Fisher Darling <fdarlingco@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+syn = { version = "*", features = ["full"] }
+quote = "*"
+rslisp = {path = "../"}
+im = "*"
+
+
+[lib]
+proc-macro = true
