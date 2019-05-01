@@ -1,5 +1,6 @@
 use crate::eval::eval;
-use crate::types::{BuiltinFunction, BuiltinMacro, Function, Scope, Type};
+use rslisp_functions::functions::{BuiltinFunction, BuiltinMacro, Function};
+use crate::types::{Scope, Type};
 
 use im::Vector;
 

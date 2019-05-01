@@ -5,6 +5,7 @@ authors = ["fisher"]
 edition = "2018"
 
 [dependencies]
+rslisp-functions = { path = "./rslisp-functions" }
 env_logger = "*"
 log = "*"
 im = "12.3.4"

@@ -1,4 +1,5 @@
-use crate::types::{BuiltinCall, Call, Scope, Type};
+use crate::types::{Scope, Type};
+use rslisp_functions::functions::{BuiltinFunction, BuiltinMacro};
 
 use im::Vector;
 
@@ -79,5 +80,49 @@ pub fn eval(expr: Type, mut stg: &mut Scope) -> Type {
             }
         }
         _ => return expr,
+    }
+}
+
+
+pub trait Call {
+    fn call(&self, args: Vector<Type>, stg: &mut Scope) -> Type;
+}
+
+pub trait BuiltinCall {
+    fn call_builtin(&mut self, args: Vector<Type>, scope: &mut Scope) -> Type;
+}
+
+impl Call for Function {
+    fn call(&self, args: Vector<Type>, stg: &mut Scope) -> Type {
+        if args.len() != self.params.len() {
+            panic!("invalid number of arguments");
+        }
+
+        let mut bounded_storage = Scope::new(self.environ.clone());
+
+        for (key, value) in self.params.iter().zip(args.into_iter()) {
+            bounded_storage.put(key.as_key(), value);
+        }
+
+        let mut values: Vec<Type> = Vec::new();
+
+        for expr in &self.body {
+            values.push(eval(expr.clone(), &mut bounded_storage));
+        }
+
+        values.last().cloned().unwrap_or(Type::Nil)
+    }
+}
+
+impl BuiltinCall for BuiltinFunction {
+    fn call_builtin(&mut self, args: Vector<Type>, scope: &mut Scope) -> Type {
+        (self.inner)(args, scope)
+    }
+}
+
+
+impl BuiltinCall for BuiltinMacro {
+    fn call_builtin(&mut self, args: Vector<Type>, scope: &mut Scope) -> Type {
+        (self.inner)(args, scope)
     }
 }
